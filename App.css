@@ -1,0 +1,16 @@
+body, html, #root, .app { height: 100%; margin: 0; font-family: sans-serif; }
+.joinChatContainer { display:flex; flex-direction:column; gap:8px; width:220px; margin:auto; }
+.joinChatContainer input, .joinChatContainer button { padding:8px; font-size:1rem; }
+
+.chatWindow { max-width:420px; height:100%; margin:auto; display:flex; flex-direction:column; }
+.chatBody { flex:1; padding:8px; overflow-y:auto; background:#f0f0f0; }
+.chatFooter { display:flex; }
+.chatFooter input { flex:1; padding:8px; font-size:1rem; }
+.chatFooter button { width:60px; font-size:1.2rem; }
+
+.message { margin:6px 0; max-width:80%; }
+.message.self { align-self:flex-end; text-align:right; }
+.message.other { align-self:flex-start; text-align:left; }
+.message .meta { font-size:0.75rem; opacity:0.6; }
+.message .text { background:#fff; border-radius:6px; padding:6px 10px; display:inline-block; }
+.message.self .text { background:#c7eaff; }
