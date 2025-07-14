@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Chat from "./components/Chat";
+import Chat from "./Chat";
 import "./App.css";   // make sure this file exists
 
 // ──────────────────────────────────────────────
