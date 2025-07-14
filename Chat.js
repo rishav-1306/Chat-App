@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
+import { io } from "socket.io-client"; // ✅ fixed import
 import Message from "./Message";
 
-// Commented out for GitHub Pages frontend-only test
-// import io from "socket.io-client";
-// const socket = io("http://localhost:4500"); // use this ONLY when backend is live
-
-let socket = null; // placeholder socket
+let socket = null; // initialized here for optional usage
 
 export default function Chat({ username, room }) {
   const [currentMsg, setCurrentMsg] = useState("");
@@ -13,19 +10,15 @@ export default function Chat({ username, room }) {
 
   useEffect(() => {
     try {
-      // Try connecting only if socket.io-client is imported
-      const io = require("socket.io-client");
-      socket = io("https://your-backend-url.onrender.com"); // <-- Replace with real deployed backend
-
+      socket = io("https://your-backend-url.onrender.com"); // 🔁 change to your actual deployed backend
       socket.emit("join_room", room);
 
       socket.on("receive_message", data =>
         setMessageList(list => [...list, data])
       );
 
-      return () => socket.off(); // clean up
-    } catch (error) {
-      // If no backend, just show a welcome message
+      return () => socket.disconnect(); // good cleanup
+    } catch (err) {
       const welcome = {
         author: "System",
         message: `Hi ${username}, welcome to "${room}"!`,
@@ -51,11 +44,9 @@ export default function Chat({ username, room }) {
       }),
     };
 
-    // Add message to list immediately
     setMessageList(list => [...list, data]);
     setCurrentMsg("");
 
-    // Send through socket if available
     if (socket) {
       await socket.emit("send_message", data);
     }
@@ -82,4 +73,3 @@ export default function Chat({ username, room }) {
     </div>
   );
 }
-
