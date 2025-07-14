@@ -1,22 +1,42 @@
 import { useEffect, useState } from "react";
-import io from "socket.io-client";
 import Message from "./Message";
 
-const socket = io("http://localhost:4500"); // backend URL
+// Commented out for GitHub Pages frontend-only test
+// import io from "socket.io-client";
+// const socket = io("http://localhost:4500"); // use this ONLY when backend is live
+
+let socket = null; // placeholder socket
 
 export default function Chat({ username, room }) {
   const [currentMsg, setCurrentMsg] = useState("");
   const [messageList, setMessageList] = useState([]);
 
   useEffect(() => {
-    socket.emit("join_room", room);
+    try {
+      // Try connecting only if socket.io-client is imported
+      const io = require("socket.io-client");
+      socket = io("https://your-backend-url.onrender.com"); // <-- Replace with real deployed backend
 
-    socket.on("receive_message", data =>
-      setMessageList(list => [...list, data])
-    );
+      socket.emit("join_room", room);
 
-    return () => socket.off(); // clean up
-  }, [room]);
+      socket.on("receive_message", data =>
+        setMessageList(list => [...list, data])
+      );
+
+      return () => socket.off(); // clean up
+    } catch (error) {
+      // If no backend, just show a welcome message
+      const welcome = {
+        author: "System",
+        message: `Hi ${username}, welcome to "${room}"!`,
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit"
+        }),
+      };
+      setMessageList([welcome]);
+    }
+  }, [room, username]);
 
   const sendMessage = async () => {
     if (!currentMsg.trim()) return;
@@ -28,12 +48,17 @@ export default function Chat({ username, room }) {
       time: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit"
-      })
+      }),
     };
 
-    await socket.emit("send_message", data);
-    setMessageList(list => [...list, data]); // show own msg
+    // Add message to list immediately
+    setMessageList(list => [...list, data]);
     setCurrentMsg("");
+
+    // Send through socket if available
+    if (socket) {
+      await socket.emit("send_message", data);
+    }
   };
 
   return (
@@ -57,3 +82,4 @@ export default function Chat({ username, room }) {
     </div>
   );
 }
+
